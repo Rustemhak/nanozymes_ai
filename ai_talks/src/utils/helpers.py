@@ -13,17 +13,18 @@ import numpy as np
 from sklearn.preprocessing import normalize
 from sklearn.metrics.pairwise import cosine_similarity, linear_kernel
 
-
+from src.utils.YandexGPT import YandexLLM
 
 import openai
-
+import langchain
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
-
 from langchain.chains import RetrievalQA
 from langchain.vectorstores import DocArrayInMemorySearch
 from langchain.document_loaders import PyPDFium2Loader
 
+api_key = os.environ['api_key']
+folder_id = "b1g6krtrd2vcbunvjpg6"
 
 # openai.api_key = os.environ.get('OPENAI_API_KEY', None)
 
@@ -79,13 +80,13 @@ def get_search_data(df: pd.DataFrame, K_m: str, V_max: str):
     distance = None
     match K_m, V_max:
         case (_, None):
-            print("K_m", K_m)
+            # print("K_m", K_m)
             distance = lambda value: abs(float(value['Km, mM']) - float(K_m))
         case (None, _):
-            print("V_max", V_max)
+            # print("V_max", V_max)
             distance = lambda value: abs(float(value['Vmax, mM/s']) - float(V_max))
         case _:
-            print("K_m, V_max", K_m, V_max)
+            # print("K_m, V_max", K_m, V_max)
             # distance = lambda value: abs(float(value['Km, mM']) - float(K_m))
             distance = lambda value: np.sqrt((float(value['Vmax, mM/s']) - float(V_max)) ** 2 + (float(value['Km, mM']) - float(K_m)) ** 2)
             # distance = lambda value: abs(float(value['Km, mM']) - float(K_m)) + abs(float(value['Vmax, mM/s']) - float(V_max))
@@ -96,8 +97,8 @@ def get_search_data(df: pd.DataFrame, K_m: str, V_max: str):
     for _, value in df.iterrows():
         # Вычисляем расстояние между значениями K_m и V_max
         try:
-            print("value", value)
-            print("value['Vmax, mM/s']", value['Vmax, mM/s'])
+            # print("value", value)
+            # print("value['Vmax, mM/s']", value['Vmax, mM/s'])
             _distance = distance(value)
             # Добавляем расстояние и значение в список distances
             distances.append((_distance, value))
@@ -227,4 +228,55 @@ def get_chatgpt_pdf_syntes(df: pd.DataFrame) -> str:
         data = 'We apologize, but our service could not find the information in the original article: ' + df.loc[index, 'link']
     return data
         
-    # return data
+
+instructions = """Представь себе, что ты умный помощник для помощи химикам и биологам Nanozymes. Твоя задача - вежливо и по мере своих сил отвечать на все вопросы собеседника по статье."""
+
+chat = YandexLLM(api_key=api_key, folder_id=folder_id,
+                instruction_text = instructions)
+
+
+def chat_YGPT(query, path_file=""):
+    # Промпт для обработки документов
+    try:
+        document_prompt = langchain.prompts.PromptTemplate(
+            input_variables=["page_content"], template="{page_content}"
+        )
+        data = ""
+        try:
+            if path_file != "":
+                loader = PyPDFium2Loader("ai_talks/assets/pdf/" + path_file) # mode="elements"
+                data = loader.load()
+        except BaseException:
+            data = ""
+        # Промпт для языковой модели
+        document_variable_name = "context"
+        stuff_prompt_override = """
+        Пожалуйста, посмотри на текст ниже и ответь на вопрос на русском языке, используя информацию из этого текста.
+        Текст:
+        -----
+        {context}
+        -----
+        Вопрос:
+        {query}"""
+        prompt = langchain.prompts.PromptTemplate(
+            template=stuff_prompt_override, input_variables=["context", "query"]
+        )
+
+        # Создаём цепочку
+        llm_chain = langchain.chains.LLMChain(llm=chat, prompt=prompt)
+        chain = langchain.chains.StuffDocumentsChain(
+            llm_chain=llm_chain,
+            document_prompt=document_prompt,
+            document_variable_name=document_variable_name,
+        )
+        class A:
+            pass
+        data = [A()]
+        data[0].page_content = data
+        data[0].metadata = {"metadata": "metadata"}
+        response = chain.run(input_documents=data, query="How is synthesis carried out in this article?")
+    except BaseException as err:
+        response = "We apologize, but our service could not find the information in the original articles."
+        print("In chat_YGPT: ", err)
+    return response
+    

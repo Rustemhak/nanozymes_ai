@@ -8,6 +8,7 @@ from .agi.chat_gpt import create_gpt_completion
 from .stt import show_voice_input
 from .tts import show_audio_player
 
+from .helpers import chat_YGPT
 
 def clear_chat() -> None:
     st.session_state.generated = []
@@ -75,29 +76,39 @@ def calc_cost(usage: dict) -> None:
     st.session_state.costs.append(cost)
 
 
-def show_gpt_conversation() -> None:
+def show_gpt_conversation(query, path_file) -> None:
     try:
-        completion = create_gpt_completion(st.session_state.model, st.session_state.messages)
-        ai_content = completion.get("choices")[0].get("message").get("content")
-        calc_cost(completion.get("usage"))
-        st.session_state.messages.append({"role": "assistant", "content": ai_content})
-        if ai_content:
-            show_chat(ai_content, st.session_state.user_text)
-            st.divider()
-            show_audio_player(ai_content)
-    except InvalidRequestError as err:
-        if err.code == "context_length_exceeded":
-            st.session_state.messages.pop(1)
-            if len(st.session_state.messages) == 1:
-                st.session_state.user_text = ""
-            show_conversation()
-        else:
-            st.error(err)
-    except (OpenAIError, UnboundLocalError) as err:
-        st.error(err)
+        data = chat_YGPT(query, path_file)
+        show_chat(data, query)
+        st.session_state.messages.append({"role": "assistant", "content": data})
+        st.divider()
+    except BaseException:
+        pass
+        
+        
+    # try:
+    #     print("In show_gpt_conversation")
+    #     completion = create_gpt_completion(st.session_state.model, st.session_state.messages)
+    #     ai_content = completion.get("choices")[0].get("message").get("content")
+    #     calc_cost(completion.get("usage"))
+    #     st.session_state.messages.append({"role": "assistant", "content": ai_content})
+    #     if ai_content:
+    #         show_chat(ai_content, st.session_state.user_text)
+    #         st.divider()
+    #         show_audio_player(ai_content)
+    # except InvalidRequestError as err:
+    #     if err.code == "context_length_exceeded":
+    #         st.session_state.messages.pop(1)
+    #         if len(st.session_state.messages) == 1:
+    #             st.session_state.user_text = ""
+    #         show_conversation()
+    #     else:
+    #         st.error(err)
+    # except (OpenAIError, UnboundLocalError) as err:
+    #     st.error(err)
 
 
-def show_conversation() -> None:
+def show_conversation(query, path_file) -> None:
     if st.session_state.messages:
         st.session_state.messages.append({"role": "user", "content": st.session_state.user_text})
     else:
@@ -106,4 +117,4 @@ def show_conversation() -> None:
             {"role": "system", "content": ai_role},
             {"role": "user", "content": st.session_state.user_text},
         ]
-    show_gpt_conversation()
+    show_gpt_conversation(query, path_file)

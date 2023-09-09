@@ -6,7 +6,7 @@ import streamlit as st
 from src.styles.menu_styles import FOOTER_STYLES, HEADER_STYLES
 from src.utils.conversation import get_user_input, show_chat_buttons, show_conversation
 from src.utils.footer import show_info
-from src.utils.helpers import get_files_in_dir, get_random_img, input_fields, get_search_data, get_chatgpt_pdf_syntes
+from src.utils.helpers import get_files_in_dir, get_random_img, input_fields, get_search_data, get_chatgpt_pdf_syntes, chat_YGPT
 from src.utils.lang import en, ru
 from streamlit_option_menu import option_menu
 
@@ -26,9 +26,10 @@ PAGE_ICON: str = "🤖"
 LANG_EN: str = "En"
 LANG_RU: str = "Ru"
 AI_MODEL_OPTIONS: list[str] = [
-    "gpt-3.5-turbo",
-    "gpt-4",
-    "gpt-4-32k",
+    "YandexGPTv2",
+    # "gpt-3.5-turbo",
+    # "gpt-4",
+    # "gpt-4-32k",
 ]
 # df.columns Index(['formula', 'activity', 'Syngony', 'length, nm', 'width, nm',
 #    'depth, nm', 'surface', 'pol', 'surf', 'Mw(coat), g/mol', 'Km, mM',
@@ -82,7 +83,7 @@ with open(css_file) as f:
 
 # Storing The Context
 if "locale" not in st.session_state:
-    st.session_state.locale = en
+    st.session_state.locale = ru
 if "generated" not in st.session_state:
     st.session_state.generated = []
 if "past" not in st.session_state:
@@ -100,8 +101,111 @@ if "costs" not in st.session_state:
 if "total_tokens" not in st.session_state:
     st.session_state.total_tokens = []
 
+if 'session_query' not in st.session_state:
+    st.session_state.session_query = ""
+if "_button" not in st.session_state:
+    st.session_state._button = ""
+def search_bz():
+    df_data_filtered = pd.read_csv("data/nanozymes_extended.csv")
+    input_option = st.radio("Выберите вариант ввода:", (r"Только $$K_m$$", r"Только $$V_{max}$$", r"$$K_m$$ и $$V_{max}$$"), index=0)
+    activiti_option = st.radio("Выберите активность:", ("all", *ACTIVITI), index=0)
 
-def main() -> None:
+    # В зависимости от выбранного варианта, отображайте соответствующие поля ввода
+    K_m, V_max = None, None
+    
+    match input_option:
+        case r"Только $$K_m$$":
+            # st.write("Вы выбрали вариант Только K_m")
+            K_m, V_max = input_fields("K_m")
+        case r"Только $$V_{max}$$":
+            # st.write("Вы выбрали вариант Только V_max")
+            K_m, V_max = input_fields("V_max")
+        case r"$$K_m$$ и $$V_{max}$$":
+            # st.write("Вы выбрали вариант K_m и V_max")
+            K_m, V_max = input_fields("K_m", "V_max")
+    st.markdown("")
+    # see_data = st.expander('Вы можете нажать здесь, чтобы увидеть необработанные данные 👉')
+    # df_data_filtered = pd.read_excel("data/nanozymes.xlsx")
+    
+    # with see_data:
+    #     st.dataframe(data=df_data_filtered.reset_index(drop=True))
+    st.text('')
+    # print("df_data_filtered", df_data_filtered)
+    # print("df.columns", df_data_filtered.columns)
+    if st.button('Получить наиболее подходящие результаты') and (K_m or V_max):
+        data = df_data_filtered
+        if activiti_option != "all":
+            data = data[data["activity"] == activiti_option]
+            
+        res = get_search_data(data, K_m, V_max)
+        i = 1
+        for distance, _data in res:
+            # Нумерация с единицы
+            try:
+                st.write(f"{i}. {_data['formula']}")
+                i += 1
+                __data = pd.DataFrame(_data).T
+                see_data = st.expander('Подробности')
+                with see_data:
+                    _prep_data = __data[COLUMNS]
+                    try:
+                        _prep_data["Syngony"] = _prep_data["Syngony"].apply(lambda x: SYNGONY.get(int(x), None))
+                    except ValueError:
+                        _prep_data["Syngony"] = None
+                    st.dataframe(data=_prep_data.reset_index(drop=True))
+                    # st.dataframe(data=__data[columns].reset_index(drop=True))
+                    # st.dataframe(data=__data.reset_index(drop=True))
+                syntes = st.expander('Синтез')
+                with syntes:
+                    # st.write(f"{__data.index[0]}) {__data['formula']}\n")
+                    # st.write("Заглушка для синтеза, про который пока можно почитать тут: ", __data["link"])
+                    st.write(get_chatgpt_pdf_syntes(__data))
+                
+            except BaseException:
+                continue
+    else:
+        st.write('')
+    # __data = df_data_filtered.iloc[0, :]
+    selected_footer = option_menu(
+        menu_title=None,
+        options=[
+            # "Поиск по базе знаний",
+            "Общение с Nanozymes",
+        ],
+        # icons=["info-circle", "chat-square-text", "piggy-bank"],  # https://icons.getbootstrap.com/
+        icons=["search"],  # https://icons.getbootstrap.com/
+        menu_icon="cast",
+        default_index=0,
+        orientation="horizontal",
+        styles=FOOTER_STYLES
+    )
+    quest = st.expander('Спросить у Nanozymes')
+    with quest:
+        # st.write(f"{__data.index[0]}) {__data['formula']}\n")
+        # st.write("Заглушка для синтеза, про который пока можно почитать тут: ", __data["link"])
+        # Напишите свой вопрос
+        print("=" * 100)
+        print("IN st.expander 'Спросить у Nanozymes'")
+        # st.session_state.session_query = st.text_input("Напишите свой вопрос")
+        __query = st.text_input("Напишите свой вопрос о статье")
+        __link = st.text_input("Поле link для анализа конкретной статьи")
+        # st.write("IN CHATGPT: QUERY", __query)
+        print("IN CHATGPT: QUERY", __query)
+        # st.session_state._button = st.button('Получить ответ')
+        # print("IN CHATGPT: BUTTON", st.session_state._button)
+        if st.button('Получить ответ') and __query:
+            if __link != "":
+                paper_filename = __link.split('/')[-1]+'.pdf'
+            else:
+                paper_filename = ""
+            print("IN CHATGPT: PAPER", paper_filename)
+            data = chat_YGPT(st.session_state.session_query, paper_filename)
+            print("FROM CHATGPT", data)
+            st.write(data)
+            
+    
+
+def main(query="", path_file="") -> None:
     c1, c2 = st.columns(2)
     with c1, c2:
         c1.selectbox(label=st.session_state.locale.select_placeholder1, key="model", options=AI_MODEL_OPTIONS)
@@ -121,12 +225,15 @@ def main() -> None:
                              options=st.session_state.locale.ai_role_options)
             case st.session_state.locale.radio_text2:
                 c2.text_input(label=st.session_state.locale.select_placeholder3, key="role")
-
+    print("In main")
     if st.session_state.user_text:
-        show_conversation()
+        print("st.session_state.user_text", st.session_state.user_text)
+        show_conversation(st.session_state.user_text, path_file)
         st.session_state.user_text = ""
+    st.session_state.input_kind = ""
     get_user_input()
     show_chat_buttons()
+    # chat_YGPT
 
 
 def run_agi():
@@ -169,6 +276,7 @@ def run_agi():
         menu_title=None,
         options=[
             "Поиск по базе знаний",
+            # "Общение с YandexGPT",
         ],
         # icons=["info-circle", "chat-square-text", "piggy-bank"],  # https://icons.getbootstrap.com/
         icons=["search"],  # https://icons.getbootstrap.com/
@@ -178,67 +286,14 @@ def run_agi():
         styles=FOOTER_STYLES
     )
     
-    df_data_filtered = pd.read_csv("data/nanozymes_extended.csv")
-    input_option = st.radio("Выберите вариант ввода:", (r"Только $$K_m$$", r"Только $$V_{max}$$", r"$$K_m$$ и $$V_{max}$$"), index=0)
-    activiti_option = st.radio("Выберите активность:", ("all", *ACTIVITI), index=0)
-
-    # В зависимости от выбранного варианта, отображайте соответствующие поля ввода
-    K_m, V_max = None, None
+    match selected_footer:
+        # case "Общение с YandexGPT":
+        #     main()
+        case "Поиск по базе знаний":
+            search_bz()
+        case _:
+            search_bz()
     
-    match input_option:
-        case r"Только $$K_m$$":
-            # st.write("Вы выбрали вариант Только K_m")
-            K_m, V_max = input_fields("K_m")
-        case r"Только $$V_{max}$$":
-            # st.write("Вы выбрали вариант Только V_max")
-            K_m, V_max = input_fields("V_max")
-        case r"$$K_m$$ и $$V_{max}$$":
-            # st.write("Вы выбрали вариант K_m и V_max")
-            K_m, V_max = input_fields("K_m", "V_max")
-    st.markdown("")
-    # see_data = st.expander('Вы можете нажать здесь, чтобы увидеть необработанные данные 👉')
-    # df_data_filtered = pd.read_excel("data/nanozymes.xlsx")
-    
-    # with see_data:
-    #     st.dataframe(data=df_data_filtered.reset_index(drop=True))
-    st.text('')
-    print("df_data_filtered", df_data_filtered)
-    print("df.columns", df_data_filtered.columns)
-    if st.button('Получить наиболее подходящие результаты') and (K_m or V_max):
-        data = df_data_filtered
-        if activiti_option != "all":
-            data = data[data["activity"] == activiti_option]
-            
-        res = get_search_data(data, K_m, V_max)
-        i = 1
-        for distance, _data in res:
-            # Нумерация с единицы
-            try:
-                st.write(f"{i}. {_data['formula']}")
-                i += 1
-                __data = pd.DataFrame(_data).T
-                see_data = st.expander('Подробности')
-                with see_data:
-                    _prep_data = __data[COLUMNS]
-                    try:
-                        _prep_data["Syngony"] = _prep_data["Syngony"].apply(lambda x: SYNGONY.get(int(x), None))
-                    except ValueError:
-                        _prep_data["Syngony"] = None
-                    st.dataframe(data=_prep_data.reset_index(drop=True))
-                    # st.dataframe(data=__data[columns].reset_index(drop=True))
-                    # st.dataframe(data=__data.reset_index(drop=True))
-                syntes = st.expander('Синтез')
-                with syntes:
-                    # st.write(f"{__data.index[0]}) {__data['formula']}\n")
-                    # st.write("Заглушка для синтеза, про который пока можно почитать тут: ", __data["link"])
-                    st.write(get_chatgpt_pdf_syntes(__data))
-            except BaseException:
-                continue
-                
-
-            
-    else:
-        st.write('')
     
     
 
