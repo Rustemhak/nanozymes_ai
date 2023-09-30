@@ -18,7 +18,8 @@
 
   Проектируемый user case:
 
-  ![User story](https://github.com/{username}/{repository}/raw/{branch}/{path}/image.png)
+  ![User story](img/b_requirements_01.png)
+
 
 _пользователь открывает сервис <br>
 в поле для выбора файла указывает путь к файлу статьи <br>
