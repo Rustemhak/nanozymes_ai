@@ -1,0 +1,39 @@
+FROM python:3.10-slim
+
+# Обновление системных пакетов и установка зависимостей
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Указание используемого порта и рабочей директории
+EXPOSE 8000
+WORKDIR /app
+# POETRY PART
+# ==================================================
+# # Установка Poetry
+# RUN pip install poetry
+# RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# # Убедитесь, что Poetry включен в переменную PATH
+# ENV PATH="${PATH}:/root/.poetry/bin"
+
+# # Установка зависимостей с помощью Poetry
+
+# COPY pyproject.toml poetry.lock /app/
+# RUN ls -lah .
+# RUN poetry -v 
+# RUN poetry config virtualenvs.create false && poetry install --no-dev
+# ==================================================
+
+# Установка зависимостей python
+COPY requirements.txt .
+RUN pip install -r requirements.txt && \
+    python -m spacy download en_core_web_sm
+
+COPY . /app
+
+# Запуск приложения
+CMD ["python", "main.py"]
+# docker build -t api-service .
+# docker run -it -v "$(pwd):/app" -p 8000:8000 api-service bash
+# docker run -d --restart=always -v "$(pwd)/data:/app/data" -v "$(pwd)/logs:/app/logs" -p 8000:8000 -e OPENAI_API_KEY=YOUR_API_KEY api-service
