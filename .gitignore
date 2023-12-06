@@ -131,3 +131,6 @@ dmypy.json
 .idea
 *secrets.toml
 .ruff_cache
+
+
+/ML System Design Doc/.DS_Store
