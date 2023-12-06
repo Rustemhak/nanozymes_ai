@@ -1,3 +1,4 @@
+import os
 from typing import List, Dict
 from src.logger import Logger
 
@@ -5,16 +6,14 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-
+import httpx
 import uvicorn
 import json
 
 from src.find_similar import find_similar
-from src.chat import ChatGPT
 from src.find_params import SubstanceSizeExtractor
 from src.pdf2text import PDF2text
 from src.get_parameters import get_parameters
-
 
 app = FastAPI()
 app.add_middleware(
@@ -25,22 +24,47 @@ app.add_middleware(
     allow_headers=["*"],  # Разрешить все заголовки
 )
 
+
 class NanozymesBotRequest(BaseModel):
-    article: dict
     query_text: str
     instruction: str
     context: str
+    article: dict
+
 
 class NanozymesBotResponse(BaseModel):
     answer: str
     context: str
 
+
 class FindParametersRequest(BaseModel):
     k_m: str
     v_max: str
 
+
 class FindParametersResponse(BaseModel):
     articles: dict
+
+
+def call_gpt_service(query, instructions, context, previous_questions):
+    request_data = {
+        "query": query,
+        "instructions": instructions,
+        "context": str(context.tolist()),
+        "previous_questions": previous_questions,
+    }
+
+    with httpx.Client() as client:
+        response = client.post(
+            os.environ['REDIRECT_IP_HOST'],
+            json=request_data,
+        )
+
+        if response.status_code == 200:
+            response_data = response.json()
+            return response_data["llm_response"]
+
+        response.raise_for_status()
 
 
 @app.post("/nanozymes_bot", response_model=NanozymesBotResponse)
@@ -52,18 +76,22 @@ async def handler_nanozymes_bot(request: NanozymesBotRequest):
             return {"answer": "No link", "context": request.context}
         document = link.split("/")[-1]
         get_context_for_query = find_similar(document, request.query_text)
-        llm = ChatGPT()
-        llm_response = llm(
+
+        # Отправляем запрос к микросервису GPT
+        llm_response = call_gpt_service(
             query=request.query_text,
             instructions=request.instruction,
             context=get_context_for_query[0],
-            previous_questions=request.context)
+            previous_questions=request.context,
+        )
+
         new_context = request.context + "\n\n" + request.query_text + "\n\nresponse: " + llm_response + "\n\n"
         return {"answer": llm_response, "context": new_context}
     except BaseException as e:
         error_message = f"Error: {document} - {e}"
         # Logger.error(error_message)
-        return {"answer": "Error, "+ str(document) + " " + str(e), "context": request.context}
+        return {"answer": "Error, " + str(document) + " " + str(e), "context": request.context}
+
 
 @app.post("/find_parameters", response_model=FindParametersResponse)
 async def handler_find_parameters(request: FindParametersRequest):
@@ -82,7 +110,7 @@ async def handler_find_parameters(request: FindParametersRequest):
                 result[f"article_{id}"][key] = str(value)
 
         Logger.info(f"/find_parameters::result : {result}")
-        
+
         return {"articles": result}
     except BaseException as e:
         error_message = f"Error: {e}"

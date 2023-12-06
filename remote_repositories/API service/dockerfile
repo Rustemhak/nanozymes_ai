@@ -24,7 +24,7 @@ WORKDIR /app
 # RUN poetry -v 
 # RUN poetry config virtualenvs.create false && poetry install --no-dev
 # ==================================================
-
+ENV REDIRECT_IP_HOST="http://64.225.69.76:8000/gpt_response"
 # Установка зависимостей python
 COPY requirements.txt .
 RUN pip install -r requirements.txt && \
@@ -36,4 +36,4 @@ COPY . /app
 CMD ["python", "main.py"]
 # docker build -t api-service .
 # docker run -it -v "$(pwd):/app" -p 8000:8000 api-service bash
-# docker run -d --restart=always -v "$(pwd)/data:/app/data" -v "$(pwd)/logs:/app/logs" -p 8000:8000 -e OPENAI_API_KEY=YOUR_API_KEY api-service
+# docker run -d --restart=always -v "$(pwd)/data:/app/data" -v "$(pwd)/logs:/app/logs" -p 8000:8000 api-service

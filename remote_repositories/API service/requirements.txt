@@ -8,3 +8,4 @@ tqdm==4.66.1
 pandas==2.1.1
 openai==0.28.1
 spacy==3.7.1
+httpx

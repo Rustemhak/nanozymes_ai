@@ -1,0 +1,19 @@
+# Используем минимальный образ Python
+FROM python:3.9-alpine
+
+# Установка рабочей директории в контейнере
+WORKDIR /app
+
+# Установка компилятора и зависимостей для сборки некоторых пакетов Python
+# (удаляем их после установки для экономии места)
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev \
+    && pip install --no-cache-dir uvicorn[standard] fastapi openai==0.28.1 \
+    && apk del .build-deps
+
+# Копирование исходного кода вашего приложения в контейнер
+COPY . .
+
+EXPOSE 8000
+
+# Команда для запуска приложения
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]
