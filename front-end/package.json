@@ -1,0 +1,28 @@
+{
+  "name": "joseph-ml",
+  "version": "1.0.0",
+  "description": "",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "dev": "parcel ./src/*.pug --port 3000 --open",
+    "build": "rm -rf ./dist && parcel build  ./src/*.pug  --public-url . --dist-dir ./dist",
+    "local": "yarn && yarn dev",
+    "prettier": "prettier --ignore-path .gitignore \"**/*.+(js|jsx|json|ts|tsx|css|scss)\"",
+    "format": "yarn prettier --write",
+    "check-format": "yarn prettier --list-different"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.0",
+    "@parcel/transformer-pug": "2.3.2",
+    "@parcel/transformer-sass": "2.3.2",
+    "parcel": "2.3.2",
+    "prettier": "^2.7.1"
+  },
+  "dependencies": {
+    "@parcel/config-default": "2.3.2",
+    "@parcel/core": "2.3.2",
+    "@swc/helpers": "^0.5.3",
+    "parcel-namer-ows": "^0.1.4",
+    "regenerator-runtime": "^0.14.0"
+  }
+}

@@ -1,0 +1,111 @@
+@import './normalize.scss';
+
+#question-form {
+  display: flex;
+  align-items: center;
+}
+
+.form__error {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+
+  &--active {
+    color: rgb(235, 24, 24);
+    display: block;
+  }
+}
+
+.form__label {
+  position: relative;
+}
+
+
+.answer__chat p {
+  background: #fff;
+  padding: 10px 15px 10px;
+
+  display: inline-block;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.answer__chat .question,
+.answer__chat .answer__text {
+  position: relative;
+}
+
+.answer__chat .question p {
+  color: #91918d;
+  position: relative;
+  box-shadow: 0 1px 2px rgb(16, 16, 16, 0.112);
+  border-radius: 8px 8px 0 8px;
+}
+
+.answer__chat .question p::after {
+  content: " ";
+  display: block;
+  content: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOSIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDkgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF8xNDY3XzI4NykiPgo8ZyBmaWx0ZXI9InVybCgjZmlsdGVyMF9kXzE0NjdfMjg3KSI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMy4wMDAyIDE3SDkuMDAwMlYwQzguODA3MiAyLjg0IDguMTI0MiA1Ljc2NyA2Ljk1MDIgOC43ODJDNi4wNDYyIDExLjEwNyA0LjUwNDIgMTMuMjY3IDIuMzI1MiAxNS4yNjJDMi4xNzY0MSAxNS4zOTggMi4wNzIyMiAxNS41NzU5IDIuMDI2MjkgMTUuNzcyMkMxLjk4MDM3IDE1Ljk2ODUgMS45OTQ4NSAxNi4xNzQxIDIuMDY3ODMgMTYuMzYyQzIuMTQwODIgMTYuNTUgMi4yNjg5MSAxNi43MTE0IDIuNDM1MyAxNi44MjUzQzIuNjAxNjggMTYuOTM5MSAyLjc5ODU5IDE3IDMuMDAwMiAxN1oiIGZpbGw9ImJsYWNrIi8+CjwvZz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zLjAwMDIgMTdIOS4wMDAyVjBDOC44MDcyIDIuODQgOC4xMjQyIDUuNzY3IDYuOTUwMiA4Ljc4MkM2LjA0NjIgMTEuMTA3IDQuNTA0MiAxMy4yNjcgMi4zMjUyIDE1LjI2MkMyLjE3NjQxIDE1LjM5OCAyLjA3MjIyIDE1LjU3NTkgMi4wMjYyOSAxNS43NzIyQzEuOTgwMzcgMTUuOTY4NSAxLjk5NDg1IDE2LjE3NDEgMi4wNjc4MyAxNi4zNjJDMi4xNDA4MiAxNi41NSAyLjI2ODkxIDE2LjcxMTQgMi40MzUzIDE2LjgyNTNDMi42MDE2OCAxNi45MzkxIDIuNzk4NTkgMTcgMy4wMDAyIDE3WiIgZmlsbD0id2hpdGUiLz4KPC9nPgo8ZGVmcz4KPGZpbHRlciBpZD0iZmlsdGVyMF9kXzE0NjdfMjg3IiB4PSIwIiB5PSItMSIgd2lkdGg9IjExIiBoZWlnaHQ9IjIxIiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CjxmZUZsb29kIGZsb29kLW9wYWNpdHk9IjAiIHJlc3VsdD0iQmFja2dyb3VuZEltYWdlRml4Ii8+CjxmZUNvbG9yTWF0cml4IGluPSJTb3VyY2VBbHBoYSIgdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDEyNyAwIiByZXN1bHQ9ImhhcmRBbHBoYSIvPgo8ZmVPZmZzZXQgZHk9IjEiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMSIvPgo8ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwLjA2MjE5NjIgMCAwIDAgMCAwLjEzODU3NCAwIDAgMCAwIDAuMTg1MDM3IDAgMCAwIDAuMTUgMCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluMj0iQmFja2dyb3VuZEltYWdlRml4IiByZXN1bHQ9ImVmZmVjdDFfZHJvcFNoYWRvd18xNDY3XzI4NyIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9ImVmZmVjdDFfZHJvcFNoYWRvd18xNDY3XzI4NyIgcmVzdWx0PSJzaGFwZSIvPgo8L2ZpbHRlcj4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xNDY3XzI4NyI+CjxyZWN0IHdpZHRoPSI5IiBoZWlnaHQ9IjIwIiBmaWxsPSJ3aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=');
+  position: absolute;
+  right: -9px;
+  bottom: -7px;
+  transform: scale(-1, 1)
+}
+
+.answer__chat .answer__text p {
+
+  position: relative;
+  box-shadow: 0 1px 2px rgb(16, 16, 16, 0.112);
+  border-radius: 8px 8px 8px 0;
+}
+
+.answer__chat .answer__text p::after {
+  content: " ";
+  display: block;
+  content: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOSIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDkgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF8xNDY3XzI4NykiPgo8ZyBmaWx0ZXI9InVybCgjZmlsdGVyMF9kXzE0NjdfMjg3KSI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMy4wMDAyIDE3SDkuMDAwMlYwQzguODA3MiAyLjg0IDguMTI0MiA1Ljc2NyA2Ljk1MDIgOC43ODJDNi4wNDYyIDExLjEwNyA0LjUwNDIgMTMuMjY3IDIuMzI1MiAxNS4yNjJDMi4xNzY0MSAxNS4zOTggMi4wNzIyMiAxNS41NzU5IDIuMDI2MjkgMTUuNzcyMkMxLjk4MDM3IDE1Ljk2ODUgMS45OTQ4NSAxNi4xNzQxIDIuMDY3ODMgMTYuMzYyQzIuMTQwODIgMTYuNTUgMi4yNjg5MSAxNi43MTE0IDIuNDM1MyAxNi44MjUzQzIuNjAxNjggMTYuOTM5MSAyLjc5ODU5IDE3IDMuMDAwMiAxN1oiIGZpbGw9ImJsYWNrIi8+CjwvZz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zLjAwMDIgMTdIOS4wMDAyVjBDOC44MDcyIDIuODQgOC4xMjQyIDUuNzY3IDYuOTUwMiA4Ljc4MkM2LjA0NjIgMTEuMTA3IDQuNTA0MiAxMy4yNjcgMi4zMjUyIDE1LjI2MkMyLjE3NjQxIDE1LjM5OCAyLjA3MjIyIDE1LjU3NTkgMi4wMjYyOSAxNS43NzIyQzEuOTgwMzcgMTUuOTY4NSAxLjk5NDg1IDE2LjE3NDEgMi4wNjc4MyAxNi4zNjJDMi4xNDA4MiAxNi41NSAyLjI2ODkxIDE2LjcxMTQgMi40MzUzIDE2LjgyNTNDMi42MDE2OCAxNi45MzkxIDIuNzk4NTkgMTcgMy4wMDAyIDE3WiIgZmlsbD0id2hpdGUiLz4KPC9nPgo8ZGVmcz4KPGZpbHRlciBpZD0iZmlsdGVyMF9kXzE0NjdfMjg3IiB4PSIwIiB5PSItMSIgd2lkdGg9IjExIiBoZWlnaHQ9IjIxIiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CjxmZUZsb29kIGZsb29kLW9wYWNpdHk9IjAiIHJlc3VsdD0iQmFja2dyb3VuZEltYWdlRml4Ii8+CjxmZUNvbG9yTWF0cml4IGluPSJTb3VyY2VBbHBoYSIgdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDEyNyAwIiByZXN1bHQ9ImhhcmRBbHBoYSIvPgo8ZmVPZmZzZXQgZHk9IjEiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMSIvPgo8ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwLjA2MjE5NjIgMCAwIDAgMCAwLjEzODU3NCAwIDAgMCAwIDAuMTg1MDM3IDAgMCAwIDAuMTUgMCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluMj0iQmFja2dyb3VuZEltYWdlRml4IiByZXN1bHQ9ImVmZmVjdDFfZHJvcFNoYWRvd18xNDY3XzI4NyIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9ImVmZmVjdDFfZHJvcFNoYWRvd18xNDY3XzI4NyIgcmVzdWx0PSJzaGFwZSIvPgo8L2ZpbHRlcj4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xNDY3XzI4NyI+CjxyZWN0IHdpZHRoPSI5IiBoZWlnaHQ9IjIwIiBmaWxsPSJ3aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=');
+  position: absolute;
+  left: -9px;
+  bottom: -7px;
+
+}
+
+.answer__chat .answer__text p::before {
+  content: "Assistant";
+  position: absolute;
+  bottom: -24px;
+  left: -6px;
+  font-size: 12px;
+  opacity: .5;
+}
+
+.answer__chat .question p::before {
+  content: "You";
+  position: absolute;
+  bottom: -24px;
+  right: -6px;
+  font-size: 12px;
+  opacity: .5;
+}
+
+#cf-wrapper h1,
+#cf-wrapper h2 {
+  font-size: 16px;
+  line-height: normal;
+  margin: 0 0 10px;
+}
+
+.back-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  text-decoration: none;
+  color: #2b3240;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 8px 12px rgba(16, 16, 16, 0.112);
+  border-radius: 8px;
+  padding: 10px 15px 10px;
+  display: block;
+  z-index: 999999;
+  background: #fff;
+}
