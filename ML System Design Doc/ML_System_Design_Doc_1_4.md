@@ -131,7 +131,7 @@
   
 #### 3.1. Способ оценки пилота  
 - Краткое описание предполагаемого дизайна и способа оценки пилота Product Owner, Data Scientist with AB Group
-  Порядок тестирования, критерии (метрики) успешности описаны в бизнес-требованиях https://docs.google.com/document/d/1wzRk
+  Порядок тестирования, критерии (метрики) успешности описаны в бизнес-требованиях https://docs.google.com/document/d/1wzRkxla2tKxWpdSKJyNufT7vK5zfY5HU0-tbEOxiyjY/
 
 #### 3.3. Подготовка пилота  
 
