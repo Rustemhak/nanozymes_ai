@@ -15,7 +15,7 @@ export const formHandler = () => {
       const url = params.get('url')
 
       if (!url) {
-        ;(errorBlock as HTMLElement).innerText = 'No article url passed'
+        ; (errorBlock as HTMLElement).innerText = 'No article url passed'
         errorBlock?.classList.add('form__error--active')
         return
       }
@@ -34,9 +34,9 @@ export const formHandler = () => {
             instruction: '',
           }
         )
-        ;(input as HTMLInputElement).value = ''
+          ; (input as HTMLInputElement).value = ''
       } else {
-        ;(errorBlock as HTMLElement).innerText = 'Field have to be filled'
+        ; (errorBlock as HTMLElement).innerText = 'Field have to be filled'
         errorBlock?.classList.add('form__error--active')
         return
       }
@@ -71,7 +71,7 @@ const sendAndHandleAnswer = async (
 
   try {
     const result = await fetch(
-      'https://dizyme.aicidlab.itmo.ru/assistant/nanozymes_bot',
+      'https://dizyme.aicidlab.itmo.ru/a6d370833a02f53db6a0a30800704994/',
       {
         method: 'POST',
         body: JSON.stringify(options),
