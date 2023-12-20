@@ -1,10 +1,9 @@
+let ctx = ''
 export const formHandler = () => {
   const form = document.querySelector('#question-form')
   const errorBlock = document.querySelector('.form__error')
   const btn = document.querySelector('.form__btn')
   const answerContainer = document.querySelector('.answer__chat')
-
-  initChat(answerContainer)
 
   const params = new URLSearchParams(window.location.search)
   if (form) {
@@ -15,14 +14,12 @@ export const formHandler = () => {
       const url = params.get('url')
 
       if (!url) {
-        ; (errorBlock as HTMLElement).innerText = 'No article url passed'
+        ;(errorBlock as HTMLElement).innerText = 'No article url passed'
         errorBlock?.classList.add('form__error--active')
         return
       }
 
       if (isValid(input as HTMLInputElement)) {
-        const ctx = localStorage.getItem('j-ml-ctx') || ''
-
         sendAndHandleAnswer(
           btn as HTMLButtonElement,
           answerContainer as HTMLElement,
@@ -34,9 +31,9 @@ export const formHandler = () => {
             instruction: '',
           }
         )
-          ; (input as HTMLInputElement).value = ''
+        ;(input as HTMLInputElement).value = ''
       } else {
-        ; (errorBlock as HTMLElement).innerText = 'Field have to be filled'
+        ;(errorBlock as HTMLElement).innerText = 'Field have to be filled'
         errorBlock?.classList.add('form__error--active')
         return
       }
@@ -91,7 +88,7 @@ const sendAndHandleAnswer = async (
 
     if (json?.answer) {
       answer = createChatElem(json.answer, 'answer__text')
-      localStorage.setItem('j-ml-ctx', json.context)
+      ctx = json.context
     } else {
       answer = createChatElem(
         'There is some error appear, please try again',
@@ -114,34 +111,4 @@ const createChatElem = (text: string, className: string): HTMLElement => {
   el.innerHTML = `<p>${text}</p>`
 
   return el
-}
-
-const initChat = (container: Element | null) => {
-  const ctx = localStorage.getItem('j-ml-ctx')
-
-  if (!ctx) return
-
-  let chat: { question: string; answer: string }[] = []
-
-  ctx
-    .split('\n')
-    ?.filter((item) => !!item)
-    ?.map((item, index, arr) => {
-      if (item.startsWith('response')) return
-
-      chat.push({
-        question: item,
-        answer: arr[index + 1].replace('response: ', ''),
-      })
-    })
-
-  if (chat.length > 0 && container) {
-    chat.map((item) => {
-      const questionEl = createChatElem(item.question, 'question')
-      const answerEl = createChatElem(item.answer, 'answer__text')
-
-      container.appendChild(questionEl)
-      container.appendChild(answerEl)
-    })
-  }
 }
